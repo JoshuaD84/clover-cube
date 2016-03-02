@@ -14,7 +14,7 @@ function showCube( elementId ) {
 	scene.updateMatrixWorld ( true );
 
 	var camera = new THREE.PerspectiveCamera ( 45, width / height, 0.1, 1000 );
-   camera.position.z = 14.5; //move camera back so we can see the cube
+   camera.position.z = 10.5; //move camera back so we can see the cube
    camera.position.y -= 0.5; //offset vertically a bit to make room for controls
 	
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -32,19 +32,10 @@ function showCube( elementId ) {
          parsedModels.children[i].material.shading = THREE.FlatShading;
 			parsedModels.children[i].material.shininess = 15;
 			parsedModels.children[i].material.reflectivity = 25;	
-			
-			parsedModels.children[i].updateMatrix();
-			parsedModels.children[i].geometry.applyMatrix( parsedModels.children[i].matrix );
-			parsedModels.children[i].position.set( 0, 0, 0 );
-			parsedModels.children[i].rotation.set( 0, 0, 0 );
-			parsedModels.children[i].scale.set( 1, 1, 1 );
-			parsedModels.children[i].updateMatrix();
-	
       }  
 		
 		blocks = parseBlocks ( parsedModels );
-		
-		scene.add ( parsedModels );      
+      scene.add ( parsedModels );      
    });
 	
 	addLights ( scene );
@@ -57,126 +48,30 @@ function showCube( elementId ) {
    render();
 	
 	count = 0;
-	
-	increments = [];
-	increments [ 0 ] =  Math.PI * .39086; //TODO: I just did this with trial and error. It's close, but not perfect. 
-	increments [ 2 ] = increments [ 0 ];
-	increments [ 1 ] = Math.PI - increments [ 0 ] * 2;
-	
 	parent.onkeypress = function(event) { //TODO: parent isn't right, doesnt allow multiple embeds. 
-		if ( count < 2 ) {
-			rotate( blocks.centers [ "BO" ],  increments [ count % 3 ] );
+		if ( count < 6 ) {
+			rotate( blocks.centers [ "BO" ],  Math.PI / 6 );
 
 			count++;
 			
-			if ( count == 2 ) {
-				dummy = new THREE.Object3D();
-				
-				scene.remove ( scene.getObjectById ( blocks.corners [ "BOY" ].id ) );
-				
-				moveFace ( blocks, "O1", "OY", "OW" );
+			if ( count == 6 ) {
+				moveFace ( blocks, "O1", "OY", "BW" );
 				moveFace ( blocks, "O2", "OW", "BY" );
 						 
 				moveFace ( blocks, "B1", "BW", "OY" );
+				moveFace ( blocks, "B2", "BY", "OW" );
 						 
 				moveCorner ( blocks, "BOW", "OW", "OY" );
 				moveCorner ( blocks, "BOW", "BW", "BY" );
 						 
 				moveCorner ( blocks, "BOY", "OY", "OW" );
 				moveCorner ( blocks, "BOY", "BY", "BW" );
-				count = 3;
-			}
-		
-		} else if ( count < 5 ) {
-			rotate( blocks.centers [ "OW" ],  increments [ count % 3 ] );
-
-			count++;
-			
-			if ( count == 5 ) {
-				
-				//Remove O4
-				var index = blocks.centers [ "GO" ].children.indexOf ( blocks.faces [ "O4" ] );
-				if ( index == -1 ) alert ( "no Josh" );
-				blocks.centers [ "GO" ].children.splice ( index, 1 );
-	
-				//Add O1
-				blocks.centers [ "GO" ].children.push ( blocks.faces [ "O1" ] ) ;
-				
-				//Remove GOW
-				var index = blocks.centers [ "GO" ].children.indexOf ( blocks.corners [ "GOW" ] );
-				if ( index == -1 ) alert ( "no Josh" );
-				blocks.centers [ "GO" ].children.splice ( index, 1 );
-				
-				//Add BOY
-				blocks.centers [ "GO" ].children.push ( blocks.corners [ "BOY" ] ) ;
-				
-				count = 6;
 			}
 		
 		} else { 
-			rotate( blocks.centers [ "GO" ],  increments [ count % 3 ] );
-			count ++;
+			rotate( blocks.centers [ "OW" ],  Math.PI / 6 );
 		}
 	}
-}
-
-
-//Psuedocode:
-
-/*
-Rotate 1st increment:
-	2/4 centers: remove corner that we share
-		 -Which two neighbors? 
-	4/4 neighbor centers: remove face that we share
-	2/4 centers: Add a face
-		 -Same 'which two neighbors?' as above
-		 -Which face? 
-	
-Rotate 2nd increment:
-	all neighbors: lose all pieces that we share 
-	2/4 neighbors: gain a corner and a face 
-		-which neighbor?
-		-which corner?
-		-which face?
-	
-Rotate 3rd increment:
-	2/4 neighbors: gain a corner
-		-which corner
-		-which neighbor
-	all neighbors: lose all faces that we share 
-	all neighbors: gain a face
-		-which face? 
-
-*/
-
-function rotate ( center, distance ) {
-	var axis = center.axis;
-	center.model.rotateOnAxis ( axis, distance );
-	applyStatesToMatrixDirectly ( center.model );
-	
-	for ( var stickerIndex in center.stickers ) {
-		center.stickers[stickerIndex].rotateOnAxis ( axis, distance  );
-		applyStatesToMatrixDirectly ( center.stickers[stickerIndex] );
-	}
-	
-	for ( var childIndex in center.children ) {
-		center.children[childIndex].model.rotateOnAxis ( axis, distance );
-		applyStatesToMatrixDirectly ( center.children[childIndex].model );
-		
-		for ( var childStickerIndex in center.children[childIndex].stickers ) {
-			center.children[childIndex].stickers[childStickerIndex].rotateOnAxis ( axis, distance );
-			applyStatesToMatrixDirectly ( center.children[childIndex].stickers[childStickerIndex] );
-		}
-	}
-}
-
-function applyStatesToMatrixDirectly ( model ) {
-	model.updateMatrix();
-	model.geometry.applyMatrix( model.matrix );
-	model.position.set( 0, 0, 0 );
-	model.rotation.set( 0, 0, 0 );
-	model.scale.set( 1, 1, 1 )
-	model.updateMatrix();
 }
 
 function moveFace ( blocks, child, oldParent, newParent ) {
@@ -192,15 +87,32 @@ function moveCorner ( blocks, child, oldParent, newParent ) {
 	blocks.centers [ newParent ].children.push ( blocks.corners [ child ] );
 }
 
+function rotate ( center, distance ) {
+	var axis = center.axis;
+	center.model.rotateOnAxis ( axis, distance );
+	for ( var i in center.stickers ) {
+		center.stickers[i].rotateOnAxis ( axis, distance  );
+	}
+	
+	for ( var i in center.children ) {
+		center.children[i].model.rotateOnAxis ( axis, distance );
+		
+		//Note: the stickers are just the colored faces
+		for ( var s in center.children[i].stickers ) {
+			center.children[i].stickers[s].rotateOnAxis ( axis, distance );
+		}
+	}
+}
+
 function parseBlocks ( cubePieces ) {
 	colors = [ "B", "G", "O", "R", "W", "Y" ];
 	colorVectors = {};
-	colorVectors["B"] = new THREE.Vector3 (  0,  0,  1 ); 
-	colorVectors["G"] = new THREE.Vector3 (  0,  0, -1 ); 
-	colorVectors["O"] = new THREE.Vector3 (  0,  1,  0 ); 
-	colorVectors["R"] = new THREE.Vector3 (  0, -1,  0 ); 
-	colorVectors["W"] = new THREE.Vector3 ( -1,  0 , 0 ); 
-	colorVectors["Y"] = new THREE.Vector3 (  1,  0,  0 );
+	colorVectors["B"] = new THREE.Vector3 (  0,  1,  0 ), 
+	colorVectors["G"] = new THREE.Vector3 (  0, -1,  0 ), 
+	colorVectors["O"] = new THREE.Vector3 (  0,  0,  1 ), 
+	colorVectors["R"] = new THREE.Vector3 (  0,  0, -1 ), 
+	colorVectors["W"] = new THREE.Vector3 (  1,  0 , 0 ), 
+	colorVectors["Y"] = new THREE.Vector3 ( -1,  0,  0 )  
 
 	opposedColors = {};
 	opposedColors [ "B" ] = "G";
@@ -293,21 +205,8 @@ function parseBlocks ( cubePieces ) {
 	centers [ "BY" ].children.push ( corners [ "BRY" ] );
 	centers [ "BY" ].children.push ( faces [ "Y1" ] );
 	centers [ "BY" ].children.push ( faces [ "Y3" ] );
+	centers [ "BY" ].children.push ( faces [ "B1" ] );
 	centers [ "BY" ].children.push ( faces [ "B2" ] );
-	centers [ "BY" ].children.push ( faces [ "B4" ] );
-	
-	
-	
-	centers [ "BR" ].children = [];
-	centers [ "BR" ].children.push ( corners [ "BRY" ] );
-	centers [ "BR" ].children.push ( corners [ "BRW" ] );
-	centers [ "BR" ].children.push ( faces [ "R3" ] );
-	centers [ "BR" ].children.push ( faces [ "R4" ] );
-	centers [ "BR" ].children.push ( faces [ "B3" ] );
-	centers [ "BR" ].children.push ( faces [ "B4" ] );
-	
-	
-	
 	
 	centers [ "GO" ].children = [];
 	centers [ "GO" ].children.push ( corners [ "GOY" ] );
@@ -335,32 +234,6 @@ function parseBlocks ( cubePieces ) {
 	centers [ "GY" ].children.push ( faces [ "Y4" ] );
 	centers [ "GY" ].children.push ( faces [ "G1" ] );
 	centers [ "GY" ].children.push ( faces [ "G3" ] );
-	
-	centers [ "RY" ].children = [];
-	centers [ "RY" ].children.push ( corners [ "BRY" ] );
-	centers [ "RY" ].children.push ( corners [ "GRY" ] );
-	centers [ "RY" ].children.push ( faces [ "Y3" ] );
-	centers [ "RY" ].children.push ( faces [ "Y4" ] );
-	centers [ "RY" ].children.push ( faces [ "R3" ] );
-	centers [ "RY" ].children.push ( faces [ "R1" ] );
-	
-	
-	centers [ "RW" ].children = [];
-	centers [ "RW" ].children.push ( corners [ "BRW" ] );
-	centers [ "RW" ].children.push ( corners [ "GRW" ] );
-	centers [ "RW" ].children.push ( faces [ "W3" ] );
-	centers [ "RW" ].children.push ( faces [ "W4" ] );
-	centers [ "RW" ].children.push ( faces [ "R2" ] );
-	centers [ "RW" ].children.push ( faces [ "R4" ] );
-	
-	
-	centers [ "GR" ].children = [];
-	centers [ "GR" ].children.push ( corners [ "GRW" ] );
-	centers [ "GR" ].children.push ( corners [ "GRY" ] );
-	centers [ "GR" ].children.push ( faces [ "R1" ] );
-	centers [ "GR" ].children.push ( faces [ "R2" ] );
-	centers [ "GR" ].children.push ( faces [ "G3" ] );
-	centers [ "GR" ].children.push ( faces [ "G4" ] );
 	
 	
 	
