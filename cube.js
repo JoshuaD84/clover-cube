@@ -103,6 +103,9 @@ function parseMoves ( moveText ) {
 		
 		var center = moveTokens[i].substring ( 0, 2 );
 		var inc = moveTokens[i].substring ( 2 );
+		if ( inc.length == 0 ) {
+			inc = "3";
+		}
 		
 		//TODO: error checking 
 		

@@ -19,7 +19,7 @@ body {
 	border-bottom: 1px solid #333333;
    float: left;
     
-	width: 250px;
+	width: 255px;
    height: 220px;
 	
 	/*width: 500px;
@@ -37,7 +37,6 @@ body {
 	border-top: 0px;
 	padding: 5px;
 	background-color: #CCCCCC;
-
 	margin: 0px;
 	text-align: center;
 }
@@ -50,7 +49,7 @@ body {
 	margin-left: 4px;
 	margin-right: 4px;
 	height: 16px;
-	width: 50px;
+	width: 55px;
 }
 
 hr {
