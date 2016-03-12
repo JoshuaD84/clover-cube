@@ -1,9 +1,10 @@
 
 var lattices = [];
 
-function showCube( elementId ) {
+function showCube( moveText, endSolved = true ) {
+
 		
-   var parentElement = document.getElementById ( elementId );
+   var parentElement = document.currentScript.parentElement;
 
    //TODO: Unhardcode these 4s and figure out how to get the width minus the border width
    var width = parentElement.offsetWidth - 4;
@@ -12,7 +13,7 @@ function showCube( elementId ) {
    var renderer = new THREE.WebGLRenderer( { alpha: true, antialias: true });
 	parentElement.appendChild ( renderer.domElement );
 	
-	var cubeControls = createControls ( elementId );
+	var cubeControls = createControls ( parentElement.id );
 	parentElement.appendChild ( cubeControls.parentElement );
 	
    renderer.setSize( width, height );
@@ -40,7 +41,8 @@ function showCube( elementId ) {
 			   
    var loader = new THREE.ObjectLoader();
    var centerRY;
-	var lattice;
+	var lattice;	
+	var moves = parseMoves ( moveText );
 	
    loader.load ( 'clover-cube.json', function ( parsedModels ) {
       for ( var i in parsedModels.children ) {
@@ -51,13 +53,12 @@ function showCube( elementId ) {
 			
 			applyStatesToMatrixDirectly ( parsedModels.children[i] );
 	   }  
-		lattice = new Lattice( parsedModels, cubeControls );
-		lattices [ elementId ] = lattice;
+		lattice = new Lattice( parsedModels, moves, endSolved, cubeControls );
+		lattices [ parentElement.id ] = lattice;
 		scene.add ( parsedModels );      
    });
 	
 	addLights ( scene );
-	
 			   
    var render = function() {
 		var rotationSpeed = Math.PI * 1/32;
@@ -88,7 +89,30 @@ function showCube( elementId ) {
    };
 	
    render();
+	
 
+}
+
+function parseMoves ( moveText ) {
+	moves = [];
+	
+	moveTokens = moveText.split (",");
+	
+	for ( var i = 0; i < moveTokens.length; i++ ) {
+		moveTokens[i] = moveTokens[i].trim();
+		
+		var center = moveTokens[i].substring ( 0, 2 );
+		var inc = moveTokens[i].substring ( 2 );
+		
+		//TODO: error checking 
+		
+		moves [ i ] = {};
+		moves [ i ].centerName = center;
+		moves [ i ].increments = inc;
+	}
+	
+	return moves;
+	
 }
 
 function rotate ( block, axis, distance ) {
@@ -110,37 +134,17 @@ function applyStatesToMatrixDirectly ( model ) {
 	model.updateMatrix();
 }
 
-function Lattice ( models, controls ) {
+function Lattice ( models, moves, endSolved, controls ) {
 	
 	
 	this.blocks = parseBlocks ( models );
 	this.controls = controls;
-	
+	this.moveOrder = moves;
+
 	this.updateMoveIndexDisplay = function () {
 		this.controls.moveIndex.innerHTML = ( this.nextMoveIndex + 1 ) + " / " + ( this.moveOrder.length + 1 );
 	}
-		
-		
-		
-	var move1 = {};
-	move1.centerName = "BO";
-	move1.increments = 2;
-	
-	var move2 = {};
-	move2.centerName = "OW";
-	move2.increments = 2;
-	
-	var move3 = {};
-	move3.centerName = "GO";
-	move3.increments = 1;
-	
-	var move4 = {};
-	move4.centerName = "OW";
-	move4.increments = -1;
-	
-	this.moveOrder = [ move1, move2, move3, move4 ];
-	
-	
+					
 	this.nextMoveIndex = 0;
 	this.updateMoveIndexDisplay ();
 		
@@ -209,16 +213,33 @@ function Lattice ( models, controls ) {
 		return this.cornerPositions [ names [ 0 ] ] [ names [ 1 ] ] [ names [ 2 ] ];		
 	}
 	
+	
+	this.applyPendingRotationsImmediately = function () {
+		while( this.pendingRotations.length > 0 ) {
+			pendingRotation = this.pendingRotations [ 0 ];
+			
+			for ( var k = 0; k < pendingRotation.blocks.length; k++ ) {
+				rotate ( pendingRotation.blocks [ k ], pendingRotation.axis, pendingRotation.distance );
+			}
+			
+			this.pendingRotations.shift(); //remove the 0th element from the array, because we're done with it. 
+		
+		}  
+	}
+		
 	this.toBeginning = function ( ) {
 		while ( this.nextMoveIndex > 0 ) {
 			this.backOne();
 		}
+		
+		this.applyPendingRotationsImmediately();
 	}
 	
 	this.toEnd = function ( ) {
 		while ( this.nextMoveIndex < this.moveOrder.length ) {
 			this.forwardOne();
 		}
+		this.applyPendingRotationsImmediately();
 	}
 
 	this.forwardOne = function ( ) {
@@ -295,7 +316,7 @@ function Lattice ( models, controls ) {
 			//TODO: Checking for too many corners/faces would be a good thing to do. 
 			if ( cornerCount < 2 || faceCount < 4 ) { 
 				//TODO: Better error indicator for user. 
-				console.log ( "illegal rotation requested" );
+				console.log ( "illegal rotation requested, cornerCount: " + cornerCount + ", faceCount: " + faceCount );
 				return;
 			}
 			
@@ -444,12 +465,12 @@ function Lattice ( models, controls ) {
 	this.setFaceAt ( "BO", "BW", 0, this.blocks.faces [ "B4" ] );
 	this.setFaceAt ( "BO", "BY", 0, this.blocks.faces [ "B1" ] );
 	this.setFaceAt ( "BO", "OY", 0, this.blocks.faces [ "O4" ] );
-	this.setFaceAt ( "BR", "RY", 0, this.blocks.faces [ "R2" ] );
-	this.setFaceAt ( "BR", "BY", 0, this.blocks.faces [ "B3" ] );
-	this.setFaceAt ( "BR", "BW", 0, this.blocks.faces [ "B2" ] );
-	this.setFaceAt ( "BR", "BR", 0, this.blocks.faces [ "R3" ] );
+	this.setFaceAt ( "BR", "RY", 0, this.blocks.faces [ "R2" ] ); 
+	this.setFaceAt ( "BR", "BY", 0, this.blocks.faces [ "B3" ] ); 
+	this.setFaceAt ( "BR", "BW", 0, this.blocks.faces [ "B2" ] ); 
+	this.setFaceAt ( "BR", "RW", 0, this.blocks.faces [ "R3" ] ); 
 	this.setFaceAt ( "BW", "OW", 0, this.blocks.faces [ "W2" ] );
-	this.setFaceAt ( "BW", "RW", 0, this.blocks.faces [ "W4" ] );
+	this.setFaceAt ( "BW", "RW", 0, this.blocks.faces [ "W4" ] ); 
 	this.setFaceAt ( "BY", "OY", 0, this.blocks.faces [ "Y3" ] );
 	this.setFaceAt ( "BY", "RY", 0, this.blocks.faces [ "Y1" ] );
 	
@@ -457,14 +478,24 @@ function Lattice ( models, controls ) {
 	this.setFaceAt ( "GO", "GY", 0, this.blocks.faces [ "G2" ] );
 	this.setFaceAt ( "GO", "GW", 0, this.blocks.faces [ "G3" ] );
 	this.setFaceAt ( "GO", "OW", 0, this.blocks.faces [ "O2" ] );
-	this.setFaceAt ( "GR", "RW", 0, this.blocks.faces [ "R4" ] );
+	this.setFaceAt ( "GR", "RW", 0, this.blocks.faces [ "R4" ] ); 
 	this.setFaceAt ( "GR", "GW", 0, this.blocks.faces [ "G1" ] );
 	this.setFaceAt ( "GR", "GY", 0, this.blocks.faces [ "G4" ] );
 	this.setFaceAt ( "GR", "RY", 0, this.blocks.faces [ "R1" ] );
-	this.setFaceAt ( "GW", "OW", 0, this.blocks.faces [ "W1" ] );
-	this.setFaceAt ( "GW", "RW", 0, this.blocks.faces [ "W3" ] );
+	this.setFaceAt ( "GW", "OW", 0, this.blocks.faces [ "W1" ] ); 
+	this.setFaceAt ( "GW", "RW", 0, this.blocks.faces [ "W3" ] ); 
 	this.setFaceAt ( "GY", "OY", 0, this.blocks.faces [ "Y4" ] );
 	this.setFaceAt ( "GY", "RY", 0, this.blocks.faces [ "Y2" ] );
+	
+	if ( endSolved ) {
+		
+		for ( var k = this.moveOrder.length - 1; k >= 0; k -- ) {
+			var move = this.moveOrder [ k ];
+			this.rotateCenter ( move.centerName, -move.increments );
+		}
+		
+		this.applyPendingRotationsImmediately();
+	}
 	
 }
 
