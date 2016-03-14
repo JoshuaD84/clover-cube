@@ -1,0 +1,49 @@
+.cube-demo {
+   border: 2px solid black;
+	width: 250px;
+   height: 275px;
+	margin: 15px;
+	padding: 0px;
+   background-color: #E5E5E5;
+	display: inline-block;
+}
+
+.cube-box {
+	text-align: center;
+}
+
+.cube-title {
+	text-align: center;
+	background-color: #BBBBBB;
+	padding: 4px 0px;
+	display: block;
+	font-weight: bold;
+}
+
+.cube-controls {
+	padding: 5px;
+	background-color: #BBBBBB;
+	border-top: 1px solid black;
+	margin: 0px;
+	text-align: center;
+   font-family: Monospace;
+   margin: 0px;
+   display: block;
+}
+
+.controls-move-index {
+	display: inline-block;
+	background: #FFFFFF;
+	border: 1px solid #333333;
+	padding: 2px 15px 2px;
+	margin-left: 4px;
+	margin-right: 4px;
+	height: 16px;
+	width: 55px;
+}
+
+.controls-button {
+	margin: 0px 4px;
+	width: 28px;
+	height: 22px;
+}

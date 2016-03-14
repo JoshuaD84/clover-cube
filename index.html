@@ -1,27 +1,222 @@
-<!doctype html>
-<html>
-	<head>
-		<title>Clover Cube Solution</title>
+<script src="/clover-cube-files/js/three.min.js"></script>
+<script src="/clover-cube-files/js/OrbitControls.js"></script>
+<script src="/clover-cube-files/lattice.js"></script>
+<script src="/clover-cube-files/cube.js"></script>
+
+
+<h2>Anatomy of the Cube</h2>
+<ul>
+<li>Centers</li>
+<li>Faces</li>
+<li>Corners</li>
+<li>Rotations</li>
+<li>Locked Rotations</li>
+</ul>
+
+<h2>Step 1: Make it a Cube</h2>
+
+<div class="cube-box">
+	<div id="make-cube-1" class="cube-demo center">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			showCube( "OW-2, BO-1, OW2, BO1", "Make Cube 1", colorInfo );
+		</script>
+	</div>
+
+	<div id="make-cube-2" class="cube-demo center">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			showCube( "OW1, BO, OW-1",  "Make Cube 2", colorInfo );
+		</script>
+	</div>
+</div>
+
+
+<h2>Step 2: Fix Face Parity / Solve Clovers</h2>
+<div class="cube-box">
+	<div id="solve-clover" class="cube-demo">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ 	"O1", "O2", "O3", "O4", "R1", "R2", "R3", "R4",
+										"W1", "W2", "W3", "W4", "Y1", "Y2", "Y3", "Y4", 
+										"B1", "B2", "B3", "B4", "G1", "G2", "G3", "G4",
+									];
+			showCube ( "", "Solve for Clover", colorInfo );
+		</script>
+	</div>
+</div>
+<div class="cube-box">
+	<div id="swap-faces-1" class="cube-demo">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ "O4", "W2" ];
+			showCube( "OW-2, BO2, OW, BO-2, OW2", "Fix Face Parity 1", colorInfo );
+		</script>
+	</div>
+	<div id="swap-faces-2" class="cube-demo">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ "O1", "O2", "O3", "O4", "W1", "W2", "W3", "W4" ];
+			showCube( "OW1, BO2, OW3, BO-2, OW2", "Fix Face Parity 2", colorInfo );
+		</script>
+	</div>
+	<div id="swap-faces-3" class="cube-demo">
+		<script>
+			//Change blue to orange
+			//change orange to white
+			//change white to {BG}
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ "O1", "O2", "O3", "O4", "W1", "W2", "W3", "W4" ];
+			showCube( "OB, WB1, OW2, WB3, OW-2, WB2, OB", "Fix Face Parity 3", colorInfo );
+		</script>
+	</div>
 	
-		<script src="js/three.min.js"></script>
-		<script src="cube.js"></script>
-      <link href="style.css" rel="stylesheet" type="text/css" />
-		<meta charset="UTF-8" />
-   </head>
-	<body> 
-      <h1>JoshuaD's Clover Cube Solution</h1>
-		<script src="js/OrbitControls.js"></script>
-      <div id="rotate-corners" class="cube-demo">
-			<script>showCube( "BO, OW, OY-3, GO, OW-3, OY, BO, OW, OY-3, GO, OW-3, OY" )</script>
-		</div>
-		<div id="position-corners" class="cube-demo">
-			<script>showCube( "OY, OB, OW, OB, OY, OB, OW, OB" )</script>
-		</div>
-		<div id="swap-faces" class="cube-demo">
-			<script>showCube( "OW1, BO2, OW3, BO-2, OW2" )</script>
-		</div>
-            
-  
-	</body>
-   
-</html>
+	<div id="face-order" class="cube-demo">
+		<script>
+			//Change blue to orange
+			//change orange to white
+			//change white to {BG}
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ "O1", "O2", "O3", "O4", "W1", "W2", "W3", "W4" ];
+			showCube( "OW-2, BO2, OW, BO-2, OW-1", "Fix Face Order", colorInfo );
+		</script>
+	</div>
+</div>
+
+<h2>Step 3: Solve a Corner</h2>
+<div class="cube-box">
+	<div id="solve-corner" class="cube-demo">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ "O1", "W2", "B4", "BW", "OW", "BO", "BOW" ];
+			//showCube( "OY, GW, GO, GR, BW, RW, BW, OW", "Solve a Corner", colorInfo );
+			showCube ( "", "Solve a Corner", colorInfo );
+		</script>
+	</div>
+</div>
+
+<h2>Step 4: Add a Second Corner</h2>
+<div class="cube-box">
+	<div id="second-corner" class="cube-demo">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ "O1", "O2", "W1", "W2", "G3", "B4", "BW", "OW", "BO", "GO", "GW", "GOW", "BOW" ];
+			showCube( "", "Add A Second Corner", colorInfo );
+		</script>
+	</div>
+</div>
+
+<h2>Step 5: Finish First Clover (With Center)</h2>
+<div class="cube-box">
+	<div id="first-clover" class="cube-demo">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ 	"O1", "O2", "O3", "O4", "W1", "W2", "G3", 
+										"B4", "BW", "OW", "OY", "BO", "GO", "GW", "GOW", "BOW" 
+									];
+			showCube( "", "Finish First Clover (w/ Center)", colorInfo );
+		</script>
+	</div>
+</div>
+
+<h2>Step 6: Add Third Corner</h2>
+<div class="cube-box">
+	<div id="third-corner" class="cube-demo">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = 	[ 
+										"O1", "O2", "O3", "O4", 
+										"W1", "W2", 
+										"G3", 
+										"Y3", 
+										"B1", "B4", 
+										"BW", "OW", "BO", "GO", "GW", "OY", "BY",
+										"GOW", "BOW", "BOY"
+									];
+			showCube( "", "Add A Third Corner", colorInfo );
+		</script>
+	</div>
+</div>
+
+
+<h2>Step 7: Finish Layer</h2>
+<div class="cube-box">
+	<div id="finish-layer" class="cube-demo">
+		<script>
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = 	[ 
+										"O1", "O2", "O3", "O4", 
+										"W1", "W2", 
+										"G3", "G2", 
+										"Y3", "Y4",
+										"B1", "B4", 
+										"BW", "OW", "BO", "GO", "GW", "OY", "BY", "GY",
+										"GOW", "BOW", "BOY", "GOY"
+									];
+			showCube( "", "Finish Layer", colorInfo );
+		</script>
+	</div>
+</div>
+
+
+<h2>Step 8: </h2>
+<div class="cube-box">
+	<div id="center-corner-orient" class="cube-demo">
+		<script>
+			//Change blue to orange
+			//change orange to white
+			//change white to {BG}
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ "O1", "O2", "O3", "O4", "OW", "GO", "BO", "OY", "W1", "W2", "W3", "W4" ];
+			showCube( "OW-1, GO-2, OW, GO2, OW1, OW-2, BO2, OW, BO-2, OW-1", "Center Flip", colorInfo );
+		</script>
+	</div>
+	<div id="flip-centers" class="cube-demo">
+		<script>
+			//Change blue to orange
+			//change orange to white
+			//change white to {BG}
+			var colorInfo = {};
+			colorInfo.greyColors = [ "B", "G", "O", "R", "W", "Y" ];
+			colorInfo.show = [ "O1", "O2", "O3", "O4", "OW", "GO", "BO", "OY" ];
+			showCube( "OW, OB, OY, OG, OW, OB, OY, OG, OW, OB, OY, OG", "Flip all 4 centers", colorInfo );
+		</script>
+	</div>
+</div>
+
+<h2>Step 9: Position Corners</h2>
+
+<div class="cube-box">
+	<div id="position-corners" class="cube-demo">
+		<script>showCube( "OY, OB, OW, OB, OY, OB, OW, OB", "Position Corners" )</script>
+	</div>
+</div>
+
+<h2>Step 10: Rotate Corners</h2>
+<div class="cube-box">
+	<div id="rotate-corners-1" class="cube-demo">
+		<script>showCube( "BO, OW, OY-3, GO, OW-3, OY, BO, OW, OY-3, GO, OW-3, OY", "Rotate Corners 1" )</script>
+	</div>
+	
+	<div id="rotate-corners-2" class="cube-demo">
+		<script>showCube( "OW, OY-3, GO, OW-3, OY, BO, OW, OY-3, GO, OW-3, OY, BO", "Rotate Corners 2" )</script>
+	</div>
+</div>
+
+
+
+
+
