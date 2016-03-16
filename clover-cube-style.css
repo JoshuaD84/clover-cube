@@ -8,6 +8,11 @@
 	display: inline-block;
 }
 
+.big {
+	width: 400px;
+   height: 440px;
+}
+
 .cube-box {
 	text-align: center;
 }

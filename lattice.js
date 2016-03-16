@@ -1,7 +1,6 @@
 function Lattice ( models, moveText, colorInfo, endSolved, controls ) {
 
 	this.blocks = parseBlocks ( models );
-	this.colorInfo = colorInfo;
 	this.controls = controls;
 	this.moveOrder = parseMoves ( moveText );
 
@@ -262,6 +261,116 @@ function Lattice ( models, moveText, colorInfo, endSolved, controls ) {
 		}
 	}
 	
+	this.setColors = function ( colorInfo ) {
+		if ( colorInfo == undefined ) {
+			colorInfo = {};
+		}
+		
+		if ( colorInfo.greyColors == undefined ) {
+			colorInfo.greyColors = [];
+		}
+		if ( colorInfo.show == undefined ) {
+			colorInfo.show = [];
+		}
+		
+		this.colorInfo = colorInfo;
+		
+		for ( var faceIndex in this.blocks.faces ) {
+			this.blocks.faces [ faceIndex ].stickers[0].material = this.blocks.faces [ faceIndex ].stickers[0].colorMaterial;
+		}
+		
+		for ( var centerIndex in this.blocks.centers ) {
+			var center = this.blocks.centers [ centerIndex ];
+			
+			for ( var stickerIndex in center.stickers ) {
+				center.stickers[stickerIndex].material = center.stickers[stickerIndex].colorMaterial;
+			}
+		}
+		
+		for ( var cornerIndex in this.blocks.corners ) {
+			var corner = this.blocks.corners [ cornerIndex ];
+			
+			for ( var stickerIndex in corner.stickers ) {
+				corner.stickers[stickerIndex].material = corner.stickers[stickerIndex].colorMaterial;
+			}
+		}
+
+		for ( var grayIndex = 0; grayIndex < this.colorInfo.greyColors.length; grayIndex++ ) {
+			var color = this.colorInfo.greyColors [ grayIndex ];
+			
+			for ( var faceIndex = 1 ; faceIndex <= 4; faceIndex ++ ) {
+				var faceName = color + "" + faceIndex;
+				if ( this.colorInfo.show.indexOf ( faceName ) == -1 ) {
+					this.blocks.faces [ faceName ].stickers[0].material = blankMaterial;
+				} else {
+					this.blocks.faces [ faceName ].stickers[0].material = this.blocks.faces [ faceName ].stickers[0].colorMaterial;
+				}
+			}
+			
+			
+			for ( var centerIndex in this.blocks.centers ) {
+				if ( this.colorInfo.show.indexOf ( centerIndex ) == -1 ) {
+					var sticker = this.blocks.centers [ centerIndex ].stickers [ color ];
+					if ( sticker != undefined ) { 
+						sticker.material = blankMaterial;
+					}
+				} else {
+					var sticker = this.blocks.centers [ centerIndex ].stickers [ color ];
+					if ( sticker != undefined ) { 
+						sticker.material = sticker.colorMaterial;
+					}
+				}
+			}
+			
+			for ( var cornerIndex in this.blocks.corners ) {
+				if ( this.colorInfo.show.indexOf ( cornerIndex ) == -1 ) {
+					var sticker = this.blocks.corners [ cornerIndex ].stickers [ color ];
+					if ( sticker != undefined ) { 
+						sticker.material = blankMaterial;
+					}
+				} else {
+					var sticker = this.blocks.corners [ cornerIndex ].stickers [ color ];
+					if ( sticker != undefined ) { 
+						sticker.material = sticker.colorMaterial;
+					}
+				}
+			}
+			
+		}
+	}
+	
+	this.showAllColors = function ( ) {
+		var colorInfo = {};
+		colorInfo.greyColors = [];		
+		this.setColors ( colorInfo );
+	}
+	
+	this.showOnlyFaces = function ( ) {
+		var colorInfo = {};
+		colorInfo.greyColors = [ 'B', 'G', 'O', 'R', 'W', 'Y' ];
+		colorInfo.show = 	[ 	"B1", "B2", "B3", "B4", "G1", "G2", "G3", "G4", 
+									"O1", "O2", "O3", "O4", "R1", "R2", "R3", "R4", 
+									"W1", "W2", "W3", "W4", "Y1", "Y2", "Y3", "Y4", 
+								];
+		
+		this.setColors ( colorInfo );
+	}
+	
+		
+	this.showOnlyCorners = function ( ) {
+		var colorInfo = {};
+		colorInfo.greyColors = [ 'B', 'G', 'O', 'R', 'W', 'Y' ];
+		colorInfo.show = 	[ 	"BOW", "BOY", "BRW", "BRY", "GOW", "GOY", "GRW", "GRY" ];
+		this.setColors ( colorInfo );
+	}
+	
+	this.showOnlyCenters = function ( ) {
+		var colorInfo = {};
+		colorInfo.greyColors = [ 'B', 'G', 'O', 'R', 'W', 'Y' ];
+		colorInfo.show = 	[ "BO", "BR", "BW", "BY", "GO", "GR", "GW", "GY", "OW", "OY", "RW", "RY" ];
+		this.setColors ( colorInfo );
+	}
+	
 	this.pendingRotations = [];
 	
 	this.nameToIndex = [];
@@ -309,10 +418,10 @@ function Lattice ( models, moveText, colorInfo, endSolved, controls ) {
 	
 	this.facePositions = new Array();
 	
-	for ( var i = 0; i < 12; i ++ ){ //all centers
+	for ( var i = 0; i < 12; i ++ ) { //all centers
 		this.facePositions[ this.indexToName [ i ] ] = new Array();
 		
-		for ( var j = 0; j < 13; j ++ ){ //all centers plus "EMPTY"
+		for ( var j = 0; j < 13; j ++ ) { //all centers plus "EMPTY"
 			this.facePositions[ this.indexToName [ i ] ] [ this.indexToName [ j ] ] = new Array();
 		}
 	}
@@ -364,37 +473,9 @@ function Lattice ( models, moveText, colorInfo, endSolved, controls ) {
 	blankMaterial.clone ( this.blocks.faces [ "R1" ].stickers[0].material );
 	blankMaterial.color.setHex (0x888888);
 	
-	if ( this.colorInfo.greyColors != undefined ) {
-		for ( var grayIndex = 0; grayIndex < this.colorInfo.greyColors.length; grayIndex++ ) {
-			var color = this.colorInfo.greyColors [ grayIndex ];
-			
-			for ( var faceIndex = 1 ; faceIndex <= 4; faceIndex ++ ) {
-				var faceName = color + "" + faceIndex;
-				if ( this.colorInfo.show == undefined || this.colorInfo.show.indexOf ( faceName ) == -1 ) {
-					this.blocks.faces [ faceName ].stickers[0].material = blankMaterial;
-				}
-			}
-			
-			
-			for ( var centerIndex in this.blocks.centers ) {
-				if ( this.colorInfo.show == undefined || this.colorInfo.show.indexOf ( centerIndex ) == -1 ) {
-					var sticker = this.blocks.centers [ centerIndex ].stickers [ color ];
-					if ( sticker != undefined ) { 
-						sticker.material = blankMaterial;
-					}
-				}
-			}
-			
-			for ( var cornerIndex in this.blocks.corners ) {
-				if ( this.colorInfo.show == undefined || this.colorInfo.show.indexOf ( cornerIndex ) == -1 ) {
-					var sticker = this.blocks.corners [ cornerIndex ].stickers [ color ];
-					if ( sticker != undefined ) { 
-						sticker.material = blankMaterial;
-					}
-				}
-			}
-		}
-	}
+	this.setColors ( colorInfo );
+	
+	
 }
 
 
@@ -430,7 +511,9 @@ function parseBlocks ( cubePieces ) {
 			faces [ faceName ].pendingRotations = [];
 			faces [ faceName ].model = cubePieces.getObjectByName ( "Clover " + faceName );
 			faces [ faceName ].stickers = [];
-			faces [ faceName ].stickers.push ( cubePieces.getObjectByName ( "Sticker - Clover " + faceName ) );
+			sticker = cubePieces.getObjectByName ( "Sticker - Clover " + faceName );
+			sticker.colorMaterial = sticker.material;
+			faces [ faceName ].stickers.push ( sticker  );
 		}
 			
 		for ( var bIndex in colors ) {
@@ -448,6 +531,9 @@ function parseBlocks ( cubePieces ) {
 			centers [ centerName ].stickers [ a ] = cubePieces.getObjectByName ( "Sticker - Center " + centerName + " - " + a );
 			centers [ centerName ].stickers [ b ] = cubePieces.getObjectByName ( "Sticker - Center " + centerName + " - " + b );
 			
+			centers [ centerName ].stickers [ a ].colorMaterial = centers [ centerName ].stickers [ a ].material;
+			centers [ centerName ].stickers [ b ].colorMaterial = centers [ centerName ].stickers [ b ].material;
+						
 			var axis = new THREE.Vector3(0, 0, 0);
 			axis.addVectors ( colorVectors [ a ], colorVectors [ b ]  );
 			axis.normalize();
@@ -475,6 +561,10 @@ function parseBlocks ( cubePieces ) {
 					corners [ cornerName ].stickers [ a ] = cubePieces.getObjectByName ( nameStub + a );
 					corners [ cornerName ].stickers [ b ] = cubePieces.getObjectByName ( nameStub + b );
 					corners [ cornerName ].stickers [ c ] = cubePieces.getObjectByName ( nameStub + c );
+					
+					corners [ cornerName ].stickers [ a ].colorMaterial = corners [ cornerName ].stickers [ a ].material;
+					corners [ cornerName ].stickers [ b ].colorMaterial = corners [ cornerName ].stickers [ b ].material;
+					corners [ cornerName ].stickers [ c ].colorMaterial = corners [ cornerName ].stickers [ c ].material;
 				}
 			}
 		}
