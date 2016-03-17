@@ -13,7 +13,7 @@
 </div>
 <p>As you can see, the moves are the same, except the second skips the first rotation (and does it at the end instead).</p>
 
-<p>These basic moves sometimes need to be combined to 
+<p>These two basic moves sometimes need to be combined to rotate all of the problematic corners. Any situation you run into can be solved using just these two moves (and combinations of them):</p>
 <div class="cube-box" style="clear: both">
 	<div id="rotate-corners-3" class="cube-demo">
 		<script>

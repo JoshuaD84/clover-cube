@@ -6,7 +6,7 @@
 	</script>
 	<a style="display: block; text-align: center" href="javascript:void(0)" onclick="lattices['anatomy-cube'].showAllColors()">Reset Colors</a>
 </div>
-	
+<div style="clear: both" />
 <ul>
 	<li><strong><a href="javascript:void(0)" onmouseover="lattices['anatomy-cube'].showOnlyCenters();">Centers</a></strong><ul>
 			<li>There are twelve centers.</li>

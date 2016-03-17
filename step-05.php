@@ -12,3 +12,6 @@
 		</script>
 	</div>
 </div>
+
+<p>In this step, you have to finish one of the two clovers available to you (either white or orange, in this case). The above cube has solved the orange one. In addition to the two remaining faces, you also should make sure that the center between them is rotated properly.</p>
+<p>This step doesn't strictly need to be done first, but doing it first makes it a whole lot easier to solve the remaining two corners (and associated faces).</p> 

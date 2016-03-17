@@ -269,8 +269,13 @@ function Lattice ( models, moveText, colorInfo, endSolved, controls ) {
 		if ( colorInfo.greyColors == undefined ) {
 			colorInfo.greyColors = [];
 		}
+		
 		if ( colorInfo.show == undefined ) {
 			colorInfo.show = [];
+		}
+		
+		if ( colorInfo.hide == undefined ) {
+			colorInfo.hide = [];
 		}
 		
 		this.colorInfo = colorInfo;
@@ -306,8 +311,7 @@ function Lattice ( models, moveText, colorInfo, endSolved, controls ) {
 					this.blocks.faces [ faceName ].stickers[0].material = this.blocks.faces [ faceName ].stickers[0].colorMaterial;
 				}
 			}
-			
-			
+					
 			for ( var centerIndex in this.blocks.centers ) {
 				if ( this.colorInfo.show.indexOf ( centerIndex ) == -1 ) {
 					var sticker = this.blocks.centers [ centerIndex ].stickers [ color ];
@@ -335,7 +339,35 @@ function Lattice ( models, moveText, colorInfo, endSolved, controls ) {
 					}
 				}
 			}
-			
+		}
+		
+		//Now deal with ones we should specifically hide. 
+		for ( var faceIndex = 1 ; faceIndex <= 4 ; faceIndex ++ ) {
+			var faceName = color + "" + faceIndex;
+			if ( this.colorInfo.hide.indexOf ( faceName ) != -1 ) {
+				this.blocks.faces [ faceName ].stickers[0].material = blankMaterial;
+			} 
+		}		
+		
+		for ( var centerIndex in this.blocks.centers ) {
+			if ( this.colorInfo.hide.indexOf ( centerIndex ) != -1 ) {
+				var sticker = this.blocks.centers [ centerIndex ].stickers [ color ];
+				if ( sticker != undefined ) { 
+					sticker.material = blankMaterial;
+				}
+			}
+		}
+		
+		for ( var cornerIndex in this.blocks.corners ) {
+			if ( this.colorInfo.hide.indexOf ( cornerIndex ) != -1 ) {
+				var colors = cornerIndex.split("");
+				for ( var colorIndex in colors ) {
+					var sticker = this.blocks.corners [ cornerIndex ].stickers [ colors [ colorIndex ] ];
+					if ( sticker != undefined ) { 
+						sticker.material = blankMaterial;
+					} 
+				}
+			}
 		}
 	}
 	
